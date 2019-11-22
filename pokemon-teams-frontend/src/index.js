@@ -1,5 +1,3 @@
-
-
 document.addEventListener("DOMContentLoaded", () => {
     const BASE_URL = "http://localhost:3000"
     const TRAINERS_URL = `${BASE_URL}/trainers`
@@ -7,16 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const trainerContainer = document.querySelector('#trainer-container');
 
+    const jsonify = res => res.json();
+
     loadTrainers()
 
     function loadTrainers() {
         fetch(TRAINERS_URL)
-        .then(res => res.json())
+        .then(jsonify)
         .then(trainersData => {
-            trainersData.forEach((trainer) => {
-                team = generateTeamObject(trainer);
-                renderTrainerCard(team);
-            })
+            processTrainerData(trainersData)
+        })
+    }
+
+    function processTrainerData(trainers) {
+        trainers.forEach((trainer) => {
+            team = generateTeamObject(trainer);
+            renderTrainerCard(team);
         })
     }
 
@@ -39,18 +43,25 @@ document.addEventListener("DOMContentLoaded", () => {
         const addButtonEl = document.createElement("button");
         addButtonEl.setAttribute('data-trainer-id', team.id);
         addButtonEl.textContent = "Add Pokemon";
-        addButtonEl.addEventListener('click', (event) => {handleAddPokemon(team.id)});
+        addButtonEl.addEventListener('click', () => {handleAddPokemon(team.id)});
 
-        const pokemonListEl = document.createElement("ul");
-
-        team.pokemons.forEach((pokemon) => {
-            listEl = renderPokemonListEl(pokemon, pokemonListEl)
-            pokemonListEl.append(listEl);
-        })
+        pokemonListEl = renderPokemonList();
 
         cardEl.append(nameEl, addButtonEl, pokemonListEl);
         trainerContainer.append(cardEl);
+    }
 
+    function renderPokemonList() {
+        const pokemonListEl = document.createElement("ul");
+        team.pokemons.forEach((pokemon) => {
+            addPokemonToList(pokemon, pokemonListEl);
+        })
+        return pokemonListEl
+    }
+
+    function addPokemonToList(pokemon, pokemonListEl) {
+        listEl = renderPokemonListEl(pokemon, pokemonListEl)
+        pokemonListEl.append(listEl);
     }
 
     function renderPokemonListEl (pokemon) {
@@ -59,11 +70,10 @@ document.addEventListener("DOMContentLoaded", () => {
         listEl.textContent = `${pokemon.nickname} (${pokemon.species})`
 
         const delButton = document.createElement("button");
+        delButton.setAttribute('data-pokemon-id', pokemon.id);
         delButton.textContent = "Release";
         delButton.classList.add("release");
-        delButton.setAttribute('data-pokemon-id', pokemon.id);
-        delButton.addEventListener('click', (event) => {handleDeletePokemon(pokemon.id)});
-
+        delButton.addEventListener('click', () => {handleDeletePokemon(pokemon.id)});
 
         listEl.append(delButton);
 
@@ -72,11 +82,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function handleAddPokemon(id) {
         const button = event.target
-        const cardEl = button.parentNode;
-        const pokemonListEl = cardEl.querySelector("ul");
+        const pokemonListEl = button.parentNode.querySelector("ul");
 
-        configObj = {
-            method: "POST",
+        configObj = generateConfigObject(id, "POST")
+
+        fetch(`${POKEMONS_URL}`, configObj)
+        .then(res => res.json())
+        .then(pokemon => {
+            addPokemonToList(pokemon, pokemonListEl);
+        }); 
+    }
+    
+    function generateConfigObject(id, method) {
+        return configObj = {
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -84,19 +103,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 "trainer_id" : id
             })
         }
-
-        fetch(`${POKEMONS_URL}`, configObj)
-        .then(res => res.json())
-        .then(pokemon_data => {
-            listEl = renderPokemonListEl(pokemon_data);
-            pokemonListEl.append(listEl);
-        }); 
     }
 
     function handleDeletePokemon(pokemon_id) {
         const pokemonListEl = event.target.parentNode
-        
-        fetch(`${POKEMONS_URL}/${pokemon_id}`, {method: "DELETE" })
-        .then(pokemonListEl.remove())
+        removeDataFromAPI(`${POKEMONS_URL}/${pokemon_id}`)
+        .then(removePokemonFromPage(pokemonListEl));
+    }
+
+    function removeDataFromAPI(url) {
+        return fetch(url, {method: "DELETE"})
+    }
+
+    function removePokemonFromPage(pokemon) {
+        return pokemon.remove();
     }
 })
