@@ -34,19 +34,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderTrainerCard(team) {
         const cardEl = document.createElement("div");
-        cardEl.classList.add("card", "trainer-card");
+        cardEl.classList.add("card");
         cardEl.setAttribute('data-id', team.id);
         
         const nameEl = document.createElement("p");
         nameEl.textContent = team.name;
 
-        const addButton = document.createElement("button");
-        addButton.setAttribute('data-trainer-id', team.id);
-        addButton.addEventListener('click', () => {handleAddPokemon(team.id)});
-
         pokemonListEl = renderPokemonList();
         numPokemon = pokemonListEl.childElementCount;
 
+        const addButton = document.createElement("button");
+        addButton.setAttribute('data-trainer-id', team.id);
+        addButton.addEventListener('click', () => {handleAddPokemon(team.id)});
         showCorrectButton(numPokemon, addButton);
 
         cardEl.append(nameEl, addButton, pokemonListEl);
@@ -89,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         configObj = generateConfigObject(id, "POST")
 
-        fetch(`${POKEMONS_URL}`, configObj)
+        fetch(POKEMONS_URL, configObj)
         .then(res => res.json())
         .then(pokemon => {
             addPokemonToList(pokemon, pokemonListEl);
