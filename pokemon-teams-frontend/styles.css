@@ -67,4 +67,12 @@ body {
       grid-template-columns: 1fr 1fr 1fr 1fr;
     }
   }
+
+  #trainer-container {
+    padding: 1em;
+  }
+
+  .trainer-card {
+    margin: 2em;
+  }
   
