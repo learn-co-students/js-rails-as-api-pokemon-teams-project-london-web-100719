@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const TRAINERS_URL = `${BASE_URL}/trainers`
     const POKEMONS_URL = `${BASE_URL}/pokemons`
 
-    const trainerContainer = document.querySelector('#trainer-container');
+    const trainerContainer = document.querySelector('main');
 
     const jsonify = res => res.json();
 
@@ -40,14 +40,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const nameEl = document.createElement("p");
         nameEl.textContent = team.name;
 
-        const addButtonEl = document.createElement("button");
-        addButtonEl.setAttribute('data-trainer-id', team.id);
-        addButtonEl.textContent = "Add Pokemon";
-        addButtonEl.addEventListener('click', () => {handleAddPokemon(team.id)});
+        const addButton = document.createElement("button");
+        addButton.setAttribute('data-trainer-id', team.id);
+        addButton.addEventListener('click', () => {handleAddPokemon(team.id)});
 
         pokemonListEl = renderPokemonList();
+        numPokemon = pokemonListEl.childElementCount;
 
-        cardEl.append(nameEl, addButtonEl, pokemonListEl);
+        showCorrectButton(numPokemon, addButton);
+
+        cardEl.append(nameEl, addButton, pokemonListEl);
         trainerContainer.append(cardEl);
     }
 
@@ -83,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function handleAddPokemon(id) {
         const button = event.target
         const pokemonListEl = button.parentNode.querySelector("ul");
+        const numPokemon = pokemonListEl.childElementCount + 1;
 
         configObj = generateConfigObject(id, "POST")
 
@@ -90,9 +93,30 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(pokemon => {
             addPokemonToList(pokemon, pokemonListEl);
+            showCorrectButton(numPokemon, button);
         }); 
     }
-    
+
+    function showCorrectButton(numPokemon, button) {
+        isPartyFull(numPokemon) ? renderFullStyle(button) : renderAddStyle(button);
+    }
+
+    function isPartyFull(numPokemon) {
+        return numPokemon >= 6
+    }
+
+    function renderAddStyle(button) {
+        button.textContent = "Add Pokemon";
+        button.disabled = false;
+        button.style.color = "white";
+    }
+
+    function renderFullStyle(button) {
+        button.textContent = "Party Full";
+        button.disabled = true;
+        button.style.color = "red";
+    }
+
     function generateConfigObject(id, method) {
         return configObj = {
             method: method,
@@ -107,8 +131,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function handleDeletePokemon(pokemon_id) {
         const pokemonListEl = event.target.parentNode
+        const numPokemon = pokemonListEl.parentNode.childElementCount - 1;
+        const addButton = event.target.parentNode.parentNode.parentNode.querySelector("button")
         removeDataFromAPI(`${POKEMONS_URL}/${pokemon_id}`)
-        .then(removePokemonFromPage(pokemonListEl));
+        .then(() => {
+            showCorrectButton(numPokemon, addButton);
+            removePokemonFromPage(pokemonListEl);
+        });
     }
 
     function removeDataFromAPI(url) {
