@@ -6,7 +6,7 @@ const POKEMONS_URL = `${BASE_URL}/pokemons`
 // global variables
 const main = document.querySelector("main");
 
-// get trainers data and render them
+// get trainers data and render each
 getTrainers().then(function(trainerJson) {
     trainerJson.forEach(function(trainer){
         renderTrainer(trainer);
@@ -41,7 +41,7 @@ function renderPokemons(trainer) {
     return ul;
 }
     
-// render a trainer with pokemons
+// render a trainer with associated pokemons
 function renderTrainer(trainer) {
     let trainerDiv = document.createElement("div");
     trainerDiv.setAttribute("class", "card");
