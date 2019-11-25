@@ -1,5 +1,4 @@
 class TrainerSerializer
-
     def initialize(trainer_object)
         @trainer = trainer_object
     end
