@@ -1,4 +1,7 @@
+
 class PokemonsController < ApplicationController
+    require 'faker'
+
     def index
         pokemons = Pokemon.all
         render json: pokemons
@@ -10,7 +13,9 @@ class PokemonsController < ApplicationController
     end
 
     def create
-        pokemon = Pokemon.create(pokemon_params)
+        name = Faker::Name.first_name
+        species = Faker::Games::Pokemon.name
+        pokemon = Pokemon.create(nickname: name, species: species, trainer_id: pokemon_params[:trainer_id])
     end
 
     def destroy

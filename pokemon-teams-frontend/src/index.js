@@ -14,25 +14,30 @@ function getTrainers() {
         })
     }
 
+// render a pokemon
+function renderAPokemon(pokemon) {
+    let relBtn = document.createElement("button");
+    relBtn.setAttribute("class", "release");
+    relBtn.setAttribute("data-pokemon-id", `${pokemon.id}`);
+    relBtn.innerText = "Release";
+    
+    let li = document.createElement("li");
+    li.innerText = `${pokemon.nickname} (${pokemon.species})`;
+    li.appendChild(relBtn);
+
+    relBtn.addEventListener("click", function() {
+        releasePokemon(pokemon,li);
+    })
+
+    return li;
+}
+
 // render pokemons for a trainer and return unordered list
 function renderPokemons(trainer) {
     let ul = document.createElement("ul");
 
     trainer.pokemons.forEach(function(pokemon) {
-        let relBtn = document.createElement("button");
-        relBtn.setAttribute("class", "release");
-        relBtn.setAttribute("data-pokemon-id", `${pokemon.id}`);
-        relBtn.innerText = "Release";
-        
-        let li = document.createElement("li");
-        li.innerText = `${pokemon.nickname} (${pokemon.species})`;
-        li.appendChild(relBtn);
-        
-        relBtn.addEventListener("click", function() {
-            releasePokemon(pokemon,li);
-        })
-
-        ul.appendChild(li);
+        ul.appendChild(renderAPokemon(pokemon));
     })
 
     return ul;
@@ -97,14 +102,16 @@ function addPokemon(trainer) {
             "Accept": "application/json"
         },
         body: JSON.stringify({
-            "nickname": "Ed",
-            "species": "Bulbasaur",
             "trainer_id": trainer.id
         })
     }
 
     fetch(POKEMONS_URL, configObj)
         .then(function() {
-            location.reload();
+            // location.reload();
+            renderAPokemon(pokemon);
+            // fetch(`${BASE_URL}/trainers/${trainer.id}`)
+            //     .then(resp => resp.json())
+            //     .then(trainer => renderPokemons(trainer))
         })
 }
