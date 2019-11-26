@@ -54,7 +54,12 @@ function renderTrainer(trainer) {
     trainerDiv.append(p, addBtn, renderPokemons(trainer));
 
     addBtn.addEventListener("click", function() {
-        addPokemon(trainer);
+        let ul = trainerDiv.querySelector("ul")
+        if (ul.childElementCount < 6) {
+            addPokemon(trainer);
+        } else {
+            alert("A trainer is only allowed to have up to a maximum of 6 Pokemons!");
+        }
     })
 
     main.append(trainerDiv);
@@ -85,25 +90,21 @@ function releasePokemon(pokemon, li) {
 function addPokemon(trainer) {
     event.preventDefault();
 
-    if (trainer.pokemons.length < 6) {
-        let configObj = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                "nickname": "Ed",
-                "species": "Bulbasaur",
-                "trainer_id": trainer.id
-            })
-        }
-
-        fetch(POKEMONS_URL, configObj)
-            .then(function() {
-                location.reload()
-            })
-    } else {
-        alert("A trainer is only allowed to have up to a maximum of 6 Pokemons!");
+    let configObj = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({
+            "nickname": "Ed",
+            "species": "Bulbasaur",
+            "trainer_id": trainer.id
+        })
     }
+
+    fetch(POKEMONS_URL, configObj)
+        .then(function() {
+            location.reload();
+        })
 }
